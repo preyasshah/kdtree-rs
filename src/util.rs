@@ -1,12 +1,19 @@
 use num_traits::Float;
 
-pub fn distance_to_space<F, T>(p1: &[T], min_bounds: &[T], max_bounds: &[T], distance: &F) -> T
+pub fn distance_to_space<F, T>(
+    p1: &[T],
+    min_bounds: &[T],
+    max_bounds: &[T],
+    distance: &F,
+    p2: &mut [T],
+) -> T
 where
     F: Fn(&[T], &[T]) -> T,
     T: Float,
 {
-    let mut p2 = vec![T::nan(); p1.len()];
-    for i in 0..p1.len() {
+    let dims = p1.len();
+    for i in 0..dims {
+        p2[i] = T::nan();
         if p1[i] > max_bounds[i] {
             p2[i] = max_bounds[i];
         } else if p1[i] < min_bounds[i] {
@@ -15,7 +22,7 @@ where
             p2[i] = p1[i];
         }
     }
-    distance(p1, &p2[..])
+    distance(p1, &p2)
 }
 
 #[cfg(test)]
@@ -26,45 +33,65 @@ mod tests {
 
     #[test]
     fn test_normal_distance_to_space() {
-        let dis = distance_to_space(&[0.0, 0.0], &[1.0, 1.0], &[2.0, 2.0], &squared_euclidean);
+        let mut scratch = vec![0.0, 0.0];
+        let dis = distance_to_space(
+            &[0.0, 0.0],
+            &[1.0, 1.0],
+            &[2.0, 2.0],
+            &squared_euclidean,
+            &mut scratch,
+        );
         assert_eq!(dis, 2.0);
     }
 
     #[test]
     fn test_distance_outside_inf() {
+        let mut scratch = vec![0.0, 0.0];
         let dis = distance_to_space(
             &[0.0, 0.0],
             &[1.0, 1.0],
             &[INFINITY, INFINITY],
             &squared_euclidean,
+            &mut scratch,
         );
         assert_eq!(dis, 2.0);
     }
 
     #[test]
     fn test_distance_inside_inf() {
+        let mut scratch = vec![0.0, 0.0];
         let dis = distance_to_space(
             &[2.0, 2.0],
             &[NEG_INFINITY, NEG_INFINITY],
             &[INFINITY, INFINITY],
             &squared_euclidean,
+            &mut scratch,
         );
         assert_eq!(dis, 0.0);
     }
 
     #[test]
     fn test_distance_inside_normal() {
-        let dis = distance_to_space(&[2.0, 2.0], &[0.0, 0.0], &[3.0, 3.0], &squared_euclidean);
+        let mut scratch = vec![0.0, 0.0];
+        let dis = distance_to_space(
+            &[2.0, 2.0],
+            &[0.0, 0.0],
+            &[3.0, 3.0],
+            &squared_euclidean,
+            &mut scratch,
+        );
         assert_eq!(dis, 0.0);
     }
 
     #[test]
     fn distance_to_half_space() {
+        let mut scratch = vec![0.0, 0.0];
         let dis = distance_to_space(
             &[-2.0, 0.0],
             &[0.0, NEG_INFINITY],
             &[INFINITY, INFINITY],
             &squared_euclidean,
+            &mut scratch,
         );
         assert_eq!(dis, 4.0);
     }

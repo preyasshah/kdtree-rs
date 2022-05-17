@@ -1,7 +1,7 @@
-extern crate kdtree;
+extern crate kiddo;
 
-use kdtree::distance::squared_euclidean;
-use kdtree::KdTree;
+use kiddo::distance::squared_euclidean;
+use kiddo::KdTree;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 static POINT_A: ([f64; 2], usize) = ([0f64, 0f64], 0);
@@ -11,9 +11,8 @@ static POINT_D: ([f64; 2], usize) = ([3f64, 3f64], 3);
 
 #[test]
 fn it_works() {
-    let dimensions = 2;
     let capacity_per_node = 2;
-    let mut kdtree = KdTree::with_capacity(dimensions, capacity_per_node);
+    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 2).unwrap();
 
     let count = AtomicUsize::new(0);
     let new_dist = |a: &[f64], b: &[f64]| {

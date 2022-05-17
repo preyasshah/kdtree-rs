@@ -661,6 +661,7 @@ impl<A: Float + Zero + One, T: PartialEq, U: AsRef<[A]> + PartialEq> KdTree<A, T
     ) where
         F: Fn(&[A], &[A]) -> A,
     {
+        let mut scratch = vec![A::nan(); point.len()];
         while let Node::Stem { left, right, .. } = &curr.content {
             let candidate;
             if curr.belongs_in_left(point) {
@@ -676,6 +677,7 @@ impl<A: Float + Zero + One, T: PartialEq, U: AsRef<[A]> + PartialEq> KdTree<A, T
                 &candidate.min_bounds,
                 &candidate.max_bounds,
                 distance,
+                &mut scratch,
             );
 
             if candidate_to_space <= max_dist {
@@ -731,6 +733,7 @@ impl<A: Float + Zero + One, T: PartialEq, U: AsRef<[A]> + PartialEq> KdTree<A, T
             pending,
             evaluated,
             distance,
+            _scratch: vec![A::nan(); point.len()],
         })
     }
 
@@ -957,6 +960,7 @@ pub struct NearestIter<
     pending: BinaryHeap<HeapElement<A, &'b KdTree<A, T, U>>>,
     evaluated: BinaryHeap<HeapElement<A, &'b T>>,
     distance: &'a F,
+    _scratch: Vec<A>,
 }
 
 impl<'a, 'b, A: Float + Zero + One, T: 'b, U, F: 'a> Iterator for NearestIter<'a, 'b, A, T, U, F>
@@ -991,6 +995,7 @@ where
                         &candidate.min_bounds,
                         &candidate.max_bounds,
                         distance,
+                        &mut self._scratch,
                     ),
                     element: &**candidate,
                 });

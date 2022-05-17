@@ -12,7 +12,7 @@ static POINT_D: ([f64; 2], usize) = ([3f64, 3f64], 3);
 #[test]
 fn it_works() {
     let capacity_per_node = 2;
-    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 2).unwrap();
 
     kdtree.add(&POINT_A.0, POINT_A.1).unwrap();
     kdtree.add(&POINT_B.0, POINT_B.1).unwrap();
@@ -83,7 +83,7 @@ fn it_works() {
 #[test]
 fn nearest_works_with_larger_example() {
     let vertices = vec![
-        [68.91105387931276, 44.91668458105576],
+        [68.91105387931276f64, 44.91668458105576],
         [-34.58731474945385, 71.74034814015292],
         [49.81627485893122, 13.441889056681546],
         [-50.870681576138466, 52.66452496629904],
@@ -105,12 +105,16 @@ fn nearest_works_with_larger_example() {
     // test point is ~9 distance away from the last vertex inserted
     let test_point = [-75.06202391475783, 1.9077480803729827];
 
-    let mut tree: KdTree<f64, (), 2> = KdTree::new();
+    let mut tree = KdTree::new(2);
 
     for vertex in vertices {
-        tree.add(&vertex, ()).unwrap();
+        tree.add(vertex, ()).unwrap();
     }
-    let nearest_distance = tree.nearest(&test_point, 1, &kiddo::distance::squared_euclidean).unwrap()[0].0.sqrt();
+    let nearest_distance = tree
+        .nearest(&test_point, 1, &kiddo::distance::squared_euclidean)
+        .unwrap()[0]
+        .0
+        .sqrt();
 
     assert_eq!(nearest_distance, 8.845460919462422);
 }
@@ -118,7 +122,7 @@ fn nearest_works_with_larger_example() {
 #[test]
 fn nearest_one_works_with_larger_example() {
     let vertices = vec![
-        [68.91105387931276, 44.91668458105576],
+        [68.91105387931276f64, 44.91668458105576],
         [-34.58731474945385, 71.74034814015292],
         [49.81627485893122, 13.441889056681546],
         [-50.870681576138466, 52.66452496629904],
@@ -140,12 +144,16 @@ fn nearest_one_works_with_larger_example() {
     // test point is ~9 distance away from the last vertex inserted
     let test_point = [-75.06202391475783, 1.9077480803729827];
 
-    let mut tree: KdTree<f64, (), 2> = KdTree::new();
+    let mut tree = KdTree::new(2);
 
     for vertex in vertices {
-        tree.add(&vertex, ()).unwrap();
+        tree.add(vertex, ()).unwrap();
     }
-    let nearest_distance = tree.nearest_one(&test_point, &kiddo::distance::squared_euclidean).unwrap().0.sqrt();
+    let nearest_distance = tree
+        .nearest_one(&test_point, &kiddo::distance::squared_euclidean)
+        .unwrap()
+        .0
+        .sqrt();
 
     assert_eq!(nearest_distance, 8.845460919462422);
 }
@@ -154,7 +162,7 @@ fn nearest_one_works_with_larger_example() {
 fn handles_non_finite_coordinate() {
     let point_a = ([std::f64::NAN, std::f64::NAN], 0f64);
     let point_b = ([std::f64::INFINITY, std::f64::INFINITY], 0f64);
-    let mut kdtree = KdTree::with_per_node_capacity(1).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(1, 2).unwrap();
 
     assert_eq!(
         kdtree.add(&point_a.0, point_a.1),
@@ -176,7 +184,7 @@ fn handles_non_finite_coordinate() {
 
 #[test]
 fn handles_singularity() {
-    let mut kdtree = KdTree::with_per_node_capacity(1).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(1, 2).unwrap();
     kdtree.add(&POINT_A.0, POINT_A.1).unwrap();
     kdtree.add(&POINT_A.0, POINT_A.1).unwrap();
     kdtree.add(&POINT_A.0, POINT_A.1).unwrap();
@@ -198,7 +206,7 @@ fn handles_pending_order() {
 
     // Build a kd tree
     let capacity_per_node = 2;
-    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 1).unwrap();
 
     kdtree.add(&item1.0, item1.1).unwrap();
     kdtree.add(&item2.0, item2.1).unwrap();
@@ -289,7 +297,7 @@ fn handles_drops_correctly() {
     {
         // Build a kd tree
         let capacity_per_node = 1;
-        let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node).unwrap();
+        let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 2).unwrap();
 
         kdtree.add(&item1.0, item1.1).unwrap();
         kdtree.add(&item2.0, item2.1).unwrap();
@@ -314,7 +322,7 @@ fn handles_remove_correctly() {
 
     // Build a kd tree
     let capacity_per_node = 2;
-    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 1).unwrap();
 
     kdtree.add(&item1.0, item1.1).unwrap();
     kdtree.add(&item2.0, item2.1).unwrap();
@@ -340,7 +348,7 @@ fn handles_remove_multiple_match() {
 
     // Build a kd tree
     let capacity_per_node = 2;
-    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 1).unwrap();
 
     kdtree.add(&item1.0, item1.1).unwrap();
     kdtree.add(&item2.0, item2.1).unwrap();
@@ -366,7 +374,7 @@ fn handles_remove_no_match() {
 
     // Build a kd tree
     let capacity_per_node = 2;
-    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node).unwrap();
+    let mut kdtree = KdTree::with_per_node_capacity(capacity_per_node, 1).unwrap();
 
     kdtree.add(&item1.0, item1.1).unwrap();
     kdtree.add(&item2.0, item2.1).unwrap();
@@ -388,4 +396,3 @@ fn error_messages_do_not_overflow_stack() {
     format!("{}", ErrorKind::ZeroCapacity);
     format!("{}", ErrorKind::Empty);
 }
-

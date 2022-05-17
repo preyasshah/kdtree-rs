@@ -28,7 +28,7 @@
 //! let c: ([f64; 2], usize) = ([2f64, 2f64], 2);
 //! let d: ([f64; 2], usize) = ([3f64, 3f64], 3);
 //!
-//! let mut kdtree = KdTree::new();
+//! let mut kdtree = KdTree::new(2);
 //!
 //! kdtree.add(&a.0, a.1)?;
 //! kdtree.add(&b.0, b.1)?;

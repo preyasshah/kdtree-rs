@@ -27,7 +27,7 @@ union SimdToArray {
 /// assert!(2.0 == squared_euclidean(&[0.0, 0.0], &[1.0, 1.0]));
 /// assert!(1.0 == squared_euclidean(&[0.0, 0.0], &[1.0, 0.0]));
 /// ```
-pub fn squared_euclidean<T: Float, const K: usize>(a: &[T; K], b: &[T; K]) -> T {
+pub fn squared_euclidean<T: Float>(a: &[T], b: &[T]) -> T {
     a.iter()
         .zip(b.iter())
         .map(|(x, y)| ((*x) - (*y)) * ((*x) - (*y)))

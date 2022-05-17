@@ -1,17 +1,13 @@
 use num_traits::Float;
 
-pub fn distance_to_space<F, T, const K: usize>(
-    p1: &[T; K],
-    min_bounds: &[T; K],
-    max_bounds: &[T; K],
-    distance: &F,
-) -> T
+pub fn distance_to_space<F, T>(p1: &[T], min_bounds: &[T], max_bounds: &[T], distance: &F) -> T
 where
-    F: Fn(&[T; K], &[T; K]) -> T,
+    F: Fn(&[T], &[T]) -> T,
     T: Float,
 {
-    let mut p2 = [T::nan(); K];
-    for i in 0..K {
+    let dims = p1.len();
+    let mut p2 = vec![T::nan(); dims];
+    for i in 0..dims {
         if p1[i] > max_bounds[i] {
             p2[i] = max_bounds[i];
         } else if p1[i] < min_bounds[i] {
